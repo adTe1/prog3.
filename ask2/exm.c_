@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>   
+#include <string.h>
+#include <sys/wait.h>
+#include <time.h>
+    
+    int main()
+    {
+      pid_t pids[10];
+      int _pipe[2];
+      int i;
+      int n = 10;
+      int random;
+    
+      srand(time(NULL));
+    
+      /* Start children. */
+      for (i = 0; i < n; ++i) {
+        //printf("%d\n",i);
+        pipe(_pipe);
+        if ((pids[i] = fork()) < 0) {
+          perror("fork");
+          abort();
+        } else if (pids[i] == 0) { // Child
+          random = rand() % 2;
+          char str[2];
+          sprintf(str,"%d",random);
+          //printf("\nChild send random: %d\n",random);
+          close(_pipe[0]);
+          write(_pipe[1], str, sizeof(str));
+          printf("Pipe sended: %s\n",str);
+          exit(0);
+        }
+        else{ // Parent
+          char string[1];
+          close(_pipe[1]);
+          read(_pipe[0],string,sizeof(string)); // read from child
+          printf("pipe received: %s\n",string);
+          //printf("\nParent Received: %d\n", ran);
+        }
+    
+      }
+    
+      wait(NULL);
+    
+    }
